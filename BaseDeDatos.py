@@ -1,30 +1,44 @@
-import mariadb
+import mysql.connector
+from mysql.connector import Error
 
-# Establecer la conexión a la base de datos
-try:
-    conexion = mariadb.connect(
-        host="localhost",
-        user="tu_usuario",  # reemplaza con tu usuario de MariaDB
-        password="tu_contraseña",  # reemplaza con tu contraseña de MariaDB
-        database="nombre_de_la_base_de_datos"  # reemplaza con el nombre de tu base de datos
-    )
-except mariadb.Error as e:
-    print(f"Error conectando a la base de datos: {e}")
-    exit(1)
+def connect_to_mariadb():
+    try:
+        # Conexión a la base de datos
+        connection = mysql.connector.connect(
+            host='nodo1',  # Dirección del servidor remoto
+            port=3306,  # Puerto de MariaDB
+            database='nombre_de_tu_base_de_datos',  # Reemplaza con el nombre de tu base de datos
+            user='tu_usuario',  # Reemplaza con tu nombre de usuario
+            password='tu_contraseña'  # Reemplaza con tu contraseña
+        )
 
-# Crear un cursor para ejecutar consultas SQL
-cursor = conexion.cursor()
+        if connection.is_connected():
+            print("Conexión exitosa a la base de datos")
 
-# Ejecutar una consulta SQL
-cursor.execute("SELECT * FROM tabla")
+            # Crear un cursor para realizar operaciones en la base de datos
+            cursor = connection.cursor()
 
-# Obtener los resultados de la consulta
-resultados = cursor.fetchall()
+            # Ejecutar una consulta
+            cursor.execute("SELECT DATABASE();")
+            record = cursor.fetchone()
+            print("Conectado a la base de datos: ", record)
 
-# Mostrar los resultados
-for fila in resultados:
-    print(fila)
+            # Aquí puedes ejecutar más consultas
+            cursor.execute("SHOW TABLES;")
+            tables = cursor.fetchall()
+            print("Tablas en la base de datos: ")
+            for table in tables:
+                print(table)
 
-# Cerrar el cursor y la conexión
-cursor.close()
-conexion.close()
+    except Error as e:
+        print("Error al conectar a MariaDB", e)
+
+    finally:
+        # Cerrar la conexión a la base de datos
+        if (connection.is_connected()):
+            cursor.close()
+            connection.close()
+            print("Conexión a MariaDB cerrada")
+
+if __name__ == "__main__":
+    connect_to_mariadb()
